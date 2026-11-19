@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Tonk.io: a tank seen from above on the arena paper, barrel aimed up and to the right -->
+  <rect x="2" y="2" width="60" height="60" rx="14" fill="#f3efe6" stroke="#4a3f5c" stroke-width="3"/>
+  <g transform="rotate(-40 30 36)">
+    <rect x="28" y="30.5" width="27" height="11" rx="2" fill="#a3a7b8" stroke="#6e7184" stroke-width="3"/>
+  </g>
+  <circle cx="30" cy="36" r="15" fill="#2ec4b6" stroke="#1f8f85" stroke-width="3.5"/>
+  <circle cx="25" cy="31" r="4" fill="#ffffff" opacity="0.35"/>
+</svg>

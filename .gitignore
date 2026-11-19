@@ -1,0 +1,10 @@
+# Build output (the compiled web client in web/ IS committed, so the game runs without Emscripten)
+build/
+build-web/
+# Secrets and local config
+web/firebase-config.js
+*.json.key
+serviceAccount*.json
+# Local tooling
+.claude/
+__pycache__/

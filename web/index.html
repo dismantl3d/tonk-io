@@ -1,0 +1,256 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tonk.io</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <canvas id="canvas" tabindex="-1" oncontextmenu="event.preventDefault()"></canvas>
+  <canvas id="labels"></canvas>
+  <div id="vignette"></div>
+  <div id="fade"></div>
+
+  <!-- ============ Lobby ============ -->
+  <div id="home">
+    <div id="dim"></div>
+
+    <div id="hero" class="a-l">
+      <h1 id="logo"><span>t</span><span>o</span><span>n</span><span>k</span><em>.io</em></h1>
+      <div id="tagline">Roll in. Power up. Be the last tank rolling.</div>
+      <div id="playcard" class="card-s">
+        <label for="name">Your name</label>
+        <div id="namerow">
+          <input id="name" maxlength="15" autocomplete="off" spellcheck="false" placeholder="Tank">
+          <button id="play" class="btn big orange">Play</button>
+        </div>
+        <div id="modes">
+          <button class="seg on" data-mode="br">Battle Royale</button>
+          <button class="seg" data-mode="rampage">Rocket Rampage</button>
+          <button class="seg" data-mode="sandbox">Sandbox</button>
+        </div>
+        <div id="modedesc"></div>
+      </div>
+      <div id="controls">
+        <span><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> move</span>
+        <span><kbd class="wide">Mouse</kbd> aim &amp; shoot</span>
+        <span><kbd>E</kbd> superpower</span>
+        <span><kbd>R</kbd><kbd>T</kbd> relics</span>
+        <span><kbd>F</kbd> swap</span>
+      </div>
+    </div>
+
+    <div id="side" class="a-r">
+      <button id="profile" class="card-s">
+        <div id="plvl"><b>1</b></div>
+        <div id="pinfo">
+          <div class="pt"><span>Legendary Path</span><small id="pxptext">0 / 200 XP</small></div>
+          <div class="bar"><i id="pxpfill"></i></div>
+        </div>
+      </button>
+      <div id="wallet">
+        <span class="chip"><i class="ico cr"></i><b id="pcredits">0</b></span>
+        <span class="chip"><i class="ico at"></i><b id="ptokens">0</b></span>
+      </div>
+      <div id="tiles">
+        <button class="tile" id="openShop"><canvas width="120" height="120"></canvas><span>Shop</span><small id="shopSub">New items</small><b class="badge hidden" id="shopBadge">NEW</b></button>
+        <button class="tile" id="openLocker"><canvas width="120" height="120"></canvas><span>Locker</span><small>Customize</small></button>
+        <button class="tile" id="openPath"><canvas width="120" height="120"></canvas><span>Path</span><small id="pathSub">Level 1</small></button>
+        <button class="tile wide" id="openArsenal"><canvas width="120" height="120"></canvas><div><span>Arsenal</span><small>Coming soon</small></div></button>
+        <button class="tile wide" id="openAch"><canvas width="120" height="120"></canvas><div><span>Achievements</span><small id="achSub">0 unlocked</small></div></button>
+      </div>
+      <div id="news" class="card-s">
+        <div class="nh">What's new</div>
+        <div id="newsbody"></div>
+      </div>
+    </div>
+
+    <button id="devlink" class="a-bl">dev tools ( ` )</button>
+  </div>
+  <div id="toasts" class="a-t"></div>
+  <button id="sound" class="a-tl" aria-label="Sound"></button>
+
+  <!-- ============ In-game HUD ============ -->
+  <div id="hud" class="hidden">
+    <div id="feed" class="a-tr">
+      <div id="alive"><i></i><b id="aliveN">40</b> alive</div>
+      <div id="feedrows"></div>
+      <div id="board" class="hidden"></div>
+    </div>
+    <div id="mmlabel" class="hidden">Arena Temple</div>
+    <div id="zone" class="a-t"><b id="zonemain"></b><small id="zonesub"></small></div>
+    <div id="notes" class="a-t"></div>
+    <div id="specbar" class="a-t hidden">
+      <span id="specname">Spectating</span>
+      <button class="btn small" id="specPrev">&#9664;</button>
+      <button class="btn small" id="specNext">&#9654;</button>
+      <button class="btn small coral" id="specLeave">Lobby</button>
+    </div>
+    <div id="outmsg" class="a-t hidden">You're in the storm! Get back to the safe zone.</div>
+    <div id="swapbar" class="a-t hidden"></div>
+    <div id="respawn" class="a-t hidden">Respawning&hellip;</div>
+    <div id="bars" class="a-b">
+      <div id="ptitle2"></div>
+      <div id="pname">Tank</div>
+      <div id="health" class="hbar"><i></i><span>100 / 100</span></div>
+      <div id="sbar" class="hidden"><div id="sico"></div><div id="strack"><i></i><span id="sname"></span></div><kbd id="skey">E</kbd></div>
+    </div>
+    <div id="stats" class="a-bl">
+      <div id="statshead">Upgrades<button id="statsToggle">&minus;</button></div>
+      <div id="statsbody">
+        <div id="statrows"></div>
+        <div id="relichead">Relics</div>
+        <div id="relics"><div class="rslot" data-slot="0"></div><div class="rslot" data-slot="1"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ Death / victory ============ -->
+  <div id="end" class="hidden">
+    <div id="endbox" class="a-c">
+      <div id="endtop">
+        <div id="killer">
+          <div id="endsub">Eliminated by</div>
+          <canvas id="killercv" width="260" height="200"></canvas>
+          <div id="endname">&mdash;</div>
+        </div>
+        <div id="endright">
+          <div id="endstats"></div>
+          <div id="xplines"></div>
+          <div id="xptotal"></div>
+        </div>
+      </div>
+      <div id="endpath"></div>
+      <div id="endbtns">
+        <button id="spectate" class="btn">Spectate</button>
+        <button id="cont" class="btn orange">Back to Lobby</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ Shop / Locker / Path ============ -->
+  <div id="modal" class="hidden">
+    <div id="mpanel" class="a-c">
+      <div id="mhead">
+        <h2 id="mtitle">Shop</h2>
+        <div id="mtabs"></div>
+        <div class="grow"></div>
+        <span class="chip"><i class="ico cr"></i><b class="mcredits">0</b></span>
+        <span class="chip"><i class="ico at"></i><b class="mtokens">0</b></span>
+        <button class="btn small" id="mclose" aria-label="Close">&#10005;</button>
+      </div>
+      <div id="mbody"></div>
+    </div>
+  </div>
+  <div id="tip" class="hidden"></div>
+  <div id="alertbox" class="hidden"></div>
+
+  <!-- ============ Admin account: passcode, then its panel ============ -->
+  <div id="passbox" class="hidden">
+    <div class="pcard">
+      <h3>Admin passcode</h3>
+      <p>This name belongs to the admin account. Enter its passcode to unlock the admin panel and exclusives.</p>
+      <input id="passin" type="password" autocomplete="off" placeholder="Passcode">
+      <div id="passerr"></div>
+      <div class="row"><button class="btn orange" id="passgo">Unlock</button><button class="btn ghost" id="passskip">Play without admin</button><button class="btn ghost" id="passcancel">Cancel</button></div>
+    </div>
+  </div>
+  <div id="admin" class="hidden">
+    <div class="admhead"><b>Admin panel</b><span>FitCocoIvy · ` to close</span><button id="adminclose" aria-label="Close">✕</button></div>
+    <div id="adminbody"></div>
+  </div>
+
+  <!-- ============ Sandbox setup ============ -->
+  <div id="sandbox" class="hidden">
+    <div class="scard">
+      <h3>Sandbox</h3>
+      <div class="sgrid">
+        <label>Rules <select id="sbRules"><option value="0">Battle Royale</option><option value="1">Rocket Rampage</option></select></label>
+        <label>Map <select id="sbMap"><option value="0">Crossroads</option><option value="1">Ruins</option><option value="2">Canyon</option><option value="3">Empty</option></select></label>
+        <label class="wide">Play area <input id="sbSize" type="range" min="2000" max="14000" step="1000"><b id="sbSizeV"></b></label>
+        <label class="wide">Fog <select id="sbFog"><option value="0">None</option><option value="1">The rules' own (storm / Rampage fog)</option><option value="2">A circle that closes</option><option value="3">A fixed circle</option></select></label>
+        <label class="wide" id="sbR0row">Fog starts at <input id="sbR0" type="range" min="500" max="7000" step="100"><b id="sbR0V"></b></label>
+        <label class="wide" id="sbR1row">Closes to <input id="sbR1" type="range" min="200" max="7000" step="100"><b id="sbR1V"></b></label>
+        <label class="wide" id="sbTimerow">Closing time <input id="sbTime" type="range" min="20" max="300" step="10"><b id="sbTimeV"></b></label>
+        <label>Bots <input id="sbBots" type="number" min="0" max="39"></label>
+        <label>Bot skill <select id="sbTier"></select></label>
+        <label>Loot <select id="sbLoot"><option value="0">None</option><option value="50">A little</option><option value="100">Normal</option><option value="250">Lots</option></select></label>
+        <label id="sbTemplesRow"><input id="sbTemples" type="checkbox"> Arena Temples</label>
+        <label><input id="sbRespawn" type="checkbox"> Respawn</label>
+      </div>
+      <p class="hint">Make your own bots and set their targets from the dev panel ( ` ) once you're in.</p>
+      <div class="row"><button class="btn orange" id="sbStart">Start sandbox</button><button class="btn ghost" id="sbCancel">Cancel</button></div>
+    </div>
+  </div>
+  <div id="blind"></div>
+
+  <!-- ============ Dev panel ============ -->
+  <div id="dev" class="hidden">
+    <div class="devtabs" id="devtabs"><button data-pg="main" class="on">MAIN</button><button data-pg="bots">BOTS</button></div>
+    <div class="devpg" data-pg="main">
+    <h4>Match</h4>
+    <div class="r">Bots <input id="nBots" type="number" min="0" max="39" value="39"> <label><input id="respawnChk" type="checkbox"> respawn</label> <button id="restart">Restart</button></div>
+    <h4>Time speed</h4>
+    <div class="r" id="speeds"><button data-s="0" title="Pause">❚❚</button><button data-s="0.25">¼×</button><button data-s="0.5">½×</button><button data-s="1" class="on">1×</button><button data-s="5">5×</button><button data-s="20">20×</button><button data-s="60">60×</button></div>
+    <h4>Closing ring</h4>
+    <div class="r"><button id="skipRing">Next ring event</button><button id="add60">+60 s</button><button id="edge">Put me outside</button><button id="toMid">Go to middle</button></div>
+    <h4>World</h4>
+    <div class="r"><button id="legendNow">Legendary Crate in 10 s</button><button id="toTemple">Go to temple</button><button id="toCrate">Go to crate</button></div>
+    <h4>You</h4>
+    <div class="r"><label><input id="god" type="checkbox"> God mode</label><label><input id="ghost" type="checkbox"> Ghost (bots don't notice me)</label></div>
+    <div class="r" style="margin-top:4px"><select id="givePow"></select><button id="givePowBtn">Give</button></div>
+    <div class="r" style="margin-top:4px"><select id="giveRel"></select><button id="giveRelBtn">Give relic</button></div>
+    <h4>Profile (saved in this browser)</h4>
+    <div class="r"><button id="addCr">+1000 Credits</button><button id="addXp">+2500 Path XP</button><button id="resetProf">Reset</button></div>
+    <h4>Sandbox</h4>
+    <div class="r"><button id="sbOpen">Sandbox setup…</button></div>
+    </div>
+    <div class="devpg hidden" data-pg="bots">
+    <h4>Watch</h4>
+    <div class="r"><label><input id="botInfoChk" type="checkbox"> Bot Info Overlay</label><label><input id="dbg" type="checkbox"> State dots</label></div>
+    <div class="r" style="margin-top:5px"><button id="prev">◀</button><button id="me">Me</button><button id="next">Watch bot ▶</button></div>
+    <div id="botinfo">—</div>
+    <div class="dim">dots: grey roam · yellow loot · red fight · blue retreat · purple zone</div>
+    <h4>Lines</h4>
+    <div class="r" id="lnModes"><button data-m="0" class="on">Off</button><button data-m="1" class="lnred">Red: targets</button><button data-m="2" class="lnblue">Blue: teams</button><button id="lnPause" title="Pause or resume the match">❚❚</button></div>
+    <div id="lnHint" class="lnhint">Pick a line color, then click a bot in the arena.</div>
+    <div class="r" style="margin-top:4px"><span id="lnCount" class="dim" style="margin:0">No lines</span><label><input id="lnShow" type="checkbox" checked> Show lines</label></div>
+    <div class="r" style="margin-top:4px"><button id="lnClrSel">Clear picked bot's</button><button id="lnClrRed">Clear red</button><button id="lnClrBlue">Clear blue</button><button id="lnClrAll">Clear all</button></div>
+    <div class="sub">Quick red lines</div>
+    <div class="r"><select id="tgWho"><option value="0">The bot I'm watching</option><option value="1">Every bot</option><option value="2">The bots I made</option></select>
+      <span>go after</span>
+      <select id="tgWhat"><option value="1">Me</option><option value="3">The bot nearest me</option><option value="2">The bot I'm watching</option><option value="0">Nobody (remove their red lines)</option></select>
+      <button id="tgSet">Set</button></div>
+    <h4>Presets</h4>
+    <div class="dim" style="margin:0 0 5px">Hand-made bots. Same power as every other bot: same health, speed and weapon, no upgrades. Only their decisions differ.</div>
+    <div id="presetList"></div>
+    <div class="r" style="margin-top:6px"><label><input id="presetSpread" type="checkbox" checked> spread across the arena</label></div>
+    <div class="r" style="margin-top:4px"><button id="presetAll">Spawn all three</button><button id="presetClear">Remove my bots</button></div>
+    <h4>Make a bot</h4>
+    <div class="bm">
+      <label>Skill <select id="bmTier"></select></label>
+      <label>Type <select id="bmStyle"></select></label>
+      <label class="wide">Aggression <input id="bmAggr" type="range" min="0" max="100" value="50"><b id="bmAggrV">50%</b></label>
+      <label class="wide"><input id="bmAuto" type="checkbox" checked> Aim &amp; dodging from its skill</label>
+      <label class="wide">Aim <input id="bmAim" type="range" min="0" max="100" value="50" disabled><b id="bmAimV">—</b></label>
+      <label class="wide">Dodging <input id="bmDodge" type="range" min="0" max="100" value="10" disabled><b id="bmDodgeV">—</b></label>
+      <label class="wide">Power <input id="bmPower" type="range" min="50" max="300" step="10" value="100"><b id="bmPowerV">×1.0</b></label>
+      <div class="wide bmstats" id="bmStats"></div>
+      <label class="wide">Superpower <select id="bmPow"></select></label>
+      <label class="wide">Relics <select id="bmRel0"></select><select id="bmRel1"></select></label>
+      <div class="wide r"><button id="bmSpawn">Spawn bot</button><button id="bmMax">Max upgrades</button><button id="bmClear">Remove my bots</button></div>
+    </div>
+    </div>
+  </div>
+
+  <script src="sfx.js"></script>
+  <script src="meta.js"></script>
+  <script src="ui.js"></script>
+  <script src="tonk_client.js"></script>
+</body>
+</html>
